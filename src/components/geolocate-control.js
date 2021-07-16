@@ -3,7 +3,7 @@ import {useRef, useEffect, useState, useCallback, useMemo} from 'react';
 import * as PropTypes from 'prop-types';
 
 import {document} from '../utils/globals';
-import mapboxgl from '../utils/mapboxgl';
+import maplibregl from '../utils/maplibregl';
 
 import MapState from '../utils/map-state';
 import {LINEAR_TRANSITION_PROPS} from '../utils/map-controller';
@@ -56,7 +56,7 @@ const defaultProps = Object.assign({}, mapControlDefaultProps, {
 });
 
 function getBounds(position) {
-  const center = new mapboxgl.LngLat(position.coords.longitude, position.coords.latitude);
+  const center = new maplibregl.LngLat(position.coords.longitude, position.coords.latitude);
   const radius = position.coords.accuracy;
   const bounds = center.toBounds(radius);
 
@@ -66,8 +66,8 @@ function getBounds(position) {
   ];
 }
 
-function setupMapboxGeolocateControl(context, props, geolocateButton) {
-  const control = new mapboxgl.GeolocateControl(props);
+function setupMaplibreGeolocateControl(context, props, geolocateButton) {
+  const control = new maplibregl.GeolocateControl(props);
 
   // Dummy placeholders so that _setupUI does not crash
   control._container = document.createElement('div');
@@ -89,8 +89,8 @@ function setupMapboxGeolocateControl(context, props, geolocateButton) {
     eventManager.on('panstart', () => {
       if (control._watchState === 'ACTIVE_LOCK') {
         control._watchState = 'BACKGROUND';
-        geolocateButton.classList.add('mapboxgl-ctrl-geolocate-background');
-        geolocateButton.classList.remove('mapboxgl-ctrl-geolocate-active');
+        geolocateButton.classList.add('maplibregl-ctrl-geolocate-background');
+        geolocateButton.classList.remove('maplibregl-ctrl-geolocate-active');
       }
     });
   }
@@ -125,7 +125,7 @@ function GeolocateControl(props) {
   const thisRef = useMapControl(props);
   const {context, containerRef} = thisRef;
   const geolocateButtonRef = useRef(null);
-  const [mapboxGeolocateControl, createMapboxGeolocateControl] = useState(null);
+  const [maplibreGeolocateControl, createMaplibreGeolocateControl] = useState(null);
   const [supportsGeolocation, setSupportsGeolocation] = useState(false);
 
   useEffect(() => {
@@ -136,10 +136,10 @@ function GeolocateControl(props) {
         setSupportsGeolocation(result);
 
         if (geolocateButtonRef.current) {
-          control = setupMapboxGeolocateControl(context, props, geolocateButtonRef.current);
+          control = setupMaplibreGeolocateControl(context, props, geolocateButtonRef.current);
           // Overwrite Mapbox's GeolocateControl internal method
           control._updateCamera = position => updateCamera(position, thisRef);
-          createMapboxGeolocateControl(control);
+          createMaplibreGeolocateControl(control);
         }
       });
     }
@@ -152,21 +152,21 @@ function GeolocateControl(props) {
   }, [context.map]);
 
   const triggerGeolocate = useCallback(() => {
-    if (mapboxGeolocateControl) {
-      mapboxGeolocateControl.options = thisRef.props;
-      mapboxGeolocateControl.trigger();
+    if (maplibreGeolocateControl) {
+      maplibreGeolocateControl.options = thisRef.props;
+      maplibreGeolocateControl.trigger();
     }
-  }, [mapboxGeolocateControl]);
+  }, [maplibreGeolocateControl]);
 
   useEffect(() => {
     if (props.auto) {
       triggerGeolocate();
     }
-  }, [mapboxGeolocateControl, props.auto]);
+  }, [maplibreGeolocateControl, props.auto]);
 
   useEffect(() => {
-    if (mapboxGeolocateControl) {
-      mapboxGeolocateControl._onZoom();
+    if (maplibreGeolocateControl) {
+      maplibreGeolocateControl._onZoom();
     }
   }, [context.viewport.zoom]);
 
@@ -176,10 +176,10 @@ function GeolocateControl(props) {
 
   return (
     <div style={style} className={className}>
-      <div key="geolocate-control" className="mapboxgl-ctrl mapboxgl-ctrl-group" ref={containerRef}>
+      <div key="geolocate-control" className="maplibregl-ctrl maplibregl-ctrl-group" ref={containerRef}>
         <button
           key="geolocate"
-          className={`mapboxgl-ctrl-icon mapboxgl-ctrl-geolocate`}
+          className={`maplibregl-ctrl-icon maplibregl-ctrl-geolocate`}
           ref={geolocateButtonRef}
           disabled={!supportsGeolocation}
           aria-pressed={!trackUserLocation}
@@ -188,7 +188,7 @@ function GeolocateControl(props) {
           aria-label={supportsGeolocation ? label : disabledLabel}
           onClick={triggerGeolocate}
         >
-          <span className="mapboxgl-ctrl-icon" aria-hidden="true" />
+          <span className="maplibregl-ctrl-icon" aria-hidden="true" />
         </button>
       </div>
     </div>

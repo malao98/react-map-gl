@@ -24,8 +24,8 @@ import * as PropTypes from 'prop-types';
 import WebMercatorViewport from 'viewport-mercator-project';
 import ResizeObserver from 'resize-observer-polyfill';
 
-import Mapbox from '../mapbox/mapbox';
-import mapboxgl from '../utils/mapboxgl';
+import Maplibre from '../maplibre/maplibre';
+import maplibregl from '../utils/maplibregl';
 import {checkVisibilityConstraints} from '../utils/map-constraints';
 import {MAPBOX_LIMITS} from '../utils/map-state';
 import MapContext, {MapContextProvider} from './map-context';
@@ -59,7 +59,7 @@ const CONTAINER_STYLE = {
   overflow: 'hidden'
 };
 
-const propTypes = Object.assign({}, Mapbox.propTypes, {
+const propTypes = Object.assign({}, Maplibre.propTypes, {
   /** The dimensions of the map **/
   width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -81,7 +81,7 @@ const propTypes = Object.assign({}, Mapbox.propTypes, {
   visibilityConstraints: PropTypes.object
 });
 
-const defaultProps = Object.assign({}, Mapbox.defaultProps, {
+const defaultProps = Object.assign({}, Maplibre.defaultProps, {
   disableTokenWarning: false,
   visible: true,
   onResize: noop,
@@ -112,11 +112,11 @@ function NoTokenWarning() {
   );
 }
 
-function getRefHandles(mapboxRef) {
+function getRefHandles(maplibreRef) {
   return {
-    getMap: () => mapboxRef.current && mapboxRef.current.getMap(),
+    getMap: () => maplibreRef.current && maplibreRef.current.getMap(),
     queryRenderedFeatures: (geometry, options = {}) => {
-      const map = mapboxRef.current && mapboxRef.current.getMap();
+      const map = maplibreRef.current && maplibreRef.current.getMap();
       return map && map.queryRenderedFeatures(geometry, options);
     }
   };
@@ -125,7 +125,7 @@ function getRefHandles(mapboxRef) {
 const StaticMap = forwardRef((props, ref) => {
   const [accessTokenValid, setTokenState] = useState(true);
   const [size, setSize] = useState({width: 0, height: 0});
-  const mapboxRef = useRef(null);
+  const maplibreRef = useRef(null);
   const mapDivRef = useRef(null);
   const containerRef = useRef(null);
   const overlayRef = useRef(null);
@@ -137,10 +137,10 @@ const StaticMap = forwardRef((props, ref) => {
     }
 
     // Initialize
-    const mapbox = new Mapbox({
+    const maplibre = new Maplibre({
       ...props,
       ...size,
-      mapboxgl, // Handle to mapbox-gl library
+      maplibregl, // Handle to mapbox-gl library
       container: mapDivRef.current,
       onError: evt => {
         const statusCode = (evt.error && evt.error.status) || evt.status;
@@ -152,10 +152,10 @@ const StaticMap = forwardRef((props, ref) => {
         props.onError(evt);
       }
     });
-    mapboxRef.current = mapbox;
+    maplibreRef.current = maplibre;
 
     if (context && context.setMap) {
-      context.setMap(mapbox.getMap());
+      context.setMap(maplibre.getMap());
     }
 
     const resizeObserver = new ResizeObserver(entries => {
@@ -169,23 +169,23 @@ const StaticMap = forwardRef((props, ref) => {
 
     // Clean up
     return () => {
-      mapbox.finalize();
-      mapboxRef.current = null;
+      maplibre.finalize();
+      maplibreRef.current = null;
       resizeObserver.disconnect();
     };
   }, []);
 
   useIsomorphicLayoutEffect(() => {
-    if (mapboxRef.current) {
-      mapboxRef.current.setProps({...props, ...size});
+    if (maplibreRef.current) {
+      maplibreRef.current.setProps({...props, ...size});
     }
   });
 
-  const map = mapboxRef.current && mapboxRef.current.getMap();
+  const map = maplibreRef.current && maplibreRef.current.getMap();
 
   // External apps can call methods via ref
   // Note: this is not a recommended pattern in React FC - Keeping for backward compatibility
-  useImperativeHandle(ref, () => getRefHandles(mapboxRef), []);
+  useImperativeHandle(ref, () => getRefHandles(maplibreRef), []);
 
   const preventScroll = useCallback(({target}) => {
     if (target === overlayRef.current) {
@@ -236,7 +236,7 @@ const StaticMap = forwardRef((props, ref) => {
       style={mapContainerStyle}
     >
       <div
-        key="map-mapbox"
+        key="map-maplibre"
         ref={mapDivRef}
         // @ts-ignore
         style={mapStyle}
@@ -248,7 +248,7 @@ const StaticMap = forwardRef((props, ref) => {
   );
 });
 
-StaticMap.supported = () => mapboxgl && mapboxgl.supported();
+StaticMap.supported = () => maplibregl && maplibregl.supported();
 StaticMap.propTypes = propTypes;
 StaticMap.defaultProps = defaultProps;
 

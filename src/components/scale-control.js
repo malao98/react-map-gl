@@ -20,7 +20,7 @@
 import * as React from 'react';
 import {useEffect, useState, useMemo} from 'react';
 import * as PropTypes from 'prop-types';
-import mapboxgl from '../utils/mapboxgl';
+import maplibregl from '../utils/maplibregl';
 import useMapControl, {mapControlDefaultProps, mapControlPropTypes} from './use-map-control';
 
 const propTypes = Object.assign({}, mapControlPropTypes, {
@@ -38,27 +38,27 @@ const defaultProps = Object.assign({}, mapControlDefaultProps, {
 
 function ScaleControl(props) {
   const {context, containerRef} = useMapControl(props);
-  const [mapboxScaleControl, createMapboxScaleControl] = useState(null);
+  const [maplibreScaleControl, createMaplibreScaleControl] = useState(null);
 
   useEffect(() => {
     if (context.map) {
-      const control = new mapboxgl.ScaleControl();
+      const control = new maplibregl.ScaleControl();
       control._map = context.map;
       control._container = containerRef.current;
-      createMapboxScaleControl(control);
+      createMaplibreScaleControl(control);
     }
   }, [context.map]);
 
-  if (mapboxScaleControl) {
-    mapboxScaleControl.options = props;
-    mapboxScaleControl._onMove();
+  if (maplibreScaleControl) {
+    maplibreScaleControl.options = props;
+    maplibreScaleControl._onMove();
   }
 
   const style = useMemo(() => ({position: 'absolute', ...props.style}), [props.style]);
 
   return (
     <div style={style} className={props.className}>
-      <div ref={containerRef} className="mapboxgl-ctrl mapboxgl-ctrl-scale" />
+      <div ref={containerRef} className="maplibregl-ctrl maplibregl-ctrl-scale" />
     </div>
   );
 }

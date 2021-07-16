@@ -36,8 +36,8 @@ const propTypes = {
   container: PropTypes.object /** The container to have the map. */,
   gl: PropTypes.object /** External WebGLContext to use */,
 
-  mapboxApiAccessToken: PropTypes.string /** Mapbox API access token for Mapbox tiles/styles. */,
-  mapboxApiUrl: PropTypes.string,
+  maplibreApiAccessToken: PropTypes.string /** Mapbox API access token for Mapbox tiles/styles. */,
+  maplibreApiUrl: PropTypes.string,
   attributionControl: PropTypes.bool /** Show attribution control or not. */,
   preserveDrawingBuffer: PropTypes.bool /** Useful when you want to export the canvas as a PNG. */,
   reuseMaps: PropTypes.bool,
@@ -73,13 +73,13 @@ const propTypes = {
 
 const defaultProps = {
   container: document.body,
-  mapboxApiAccessToken: getAccessToken(),
-  mapboxApiUrl: 'https://api.mapbox.com',
+  maplibreApiAccessToken: getAccessToken(),
+  maplibreApiUrl: 'http://localhost:3650/api',
   preserveDrawingBuffer: false,
   attributionControl: true,
   reuseMaps: false,
   mapOptions: {},
-  mapStyle: 'mapbox://styles/mapbox/light-v8',
+  mapStyle: 'http://localhost:3650/api/maps/streets/style.json',
   preventStyleDiffing: false,
 
   visible: true,
@@ -110,7 +110,7 @@ export function getAccessToken() {
   if (!accessToken && typeof process !== 'undefined') {
     // Note: This depends on bundler plugins (e.g. webpack) importing environment correctly
     accessToken =
-      accessToken || process.env.MapboxAccessToken || process.env.REACT_APP_MAPBOX_ACCESS_TOKEN; // eslint-disable-line
+      accessToken || process.env.MaplibreAccessToken || process.env.REACT_APP_MAPBOX_ACCESS_TOKEN; // eslint-disable-line
   }
 
   // Prevents mapbox from throwing
@@ -131,27 +131,27 @@ function checkPropTypes(props, component = 'component') {
 // - Handles map reuse (to work around Mapbox resource leak issues)
 // - Provides support for specifying tokens during development
 
-export default class Mapbox {
+export default class Maplibre {
   static initialized = false;
   static propTypes = propTypes;
   static defaultProps = defaultProps;
   static savedMap = null;
 
   constructor(props) {
-    if (!props.mapboxgl) {
+    if (!props.maplibregl) {
       throw new Error('Mapbox not available');
     }
 
-    this.mapboxgl = props.mapboxgl;
+    this.maplibregl = props.maplibregl;
 
-    if (!Mapbox.initialized) {
-      Mapbox.initialized = true;
+    if (!Maplibre.initialized) {
+      Maplibre.initialized = true;
 
       // Version detection using babel plugin
       // const VERSION = typeof __VERSION__ !== 'undefined' ? __VERSION__ : 'untranspiled source';
       // TODO - expose version for debug
 
-      this._checkStyleSheet(this.mapboxgl.version);
+      this._checkStyleSheet(this.maplibregl.version);
     }
 
     this._initialize(props);
@@ -205,19 +205,19 @@ export default class Mapbox {
   };
 
   _reuse(props) {
-    this._map = Mapbox.savedMap;
+    this._map = Maplibre.savedMap;
     // When reusing the saved map, we need to reparent the map(canvas) and other child nodes
     // intoto the new container from the props.
     // Step1: reparenting child nodes from old container to new container
     const oldContainer = this._map.getContainer();
     const newContainer = props.container;
-    newContainer.classList.add('mapboxgl-map');
+    newContainer.classList.add('maplibregl-map');
     while (oldContainer.childNodes.length > 0) {
       newContainer.appendChild(oldContainer.childNodes[0]);
     }
     // Step2: replace the internal container with new container from the react component
     this._map._container = newContainer;
-    Mapbox.savedMap = null;
+    Maplibre.savedMap = null;
 
     // Step3: update style and call onload again
     if (props.mapStyle) {
@@ -238,7 +238,7 @@ export default class Mapbox {
 
   _create(props) {
     // Reuse a saved map, if available
-    if (props.reuseMaps && Mapbox.savedMap) {
+    if (props.reuseMaps && MapblibresavedMap) {
       this._reuse(props);
     } else {
       if (props.gl) {
@@ -269,7 +269,7 @@ export default class Mapbox {
       if (props.transformRequest) {
         mapOptions.transformRequest = props.transformRequest;
       }
-      this._map = new this.mapboxgl.Map(Object.assign({}, mapOptions, props.mapOptions));
+      this._map = new this.maplibregl.Map(Object.assign({}, mapOptions, props.mapOptions));
 
       // Attach optional onLoad function
       this._map.once('load', props.onLoad);
@@ -284,8 +284,8 @@ export default class Mapbox {
       return;
     }
 
-    if (!Mapbox.savedMap) {
-      Mapbox.savedMap = this._map;
+    if (!Maplibre.savedMap) {
+      Maplibre.savedMap = this._map;
 
       // deregister the mapbox event listeners
       this._map.off('load', this.props.onLoad);
@@ -300,11 +300,11 @@ export default class Mapbox {
 
   _initialize(props) {
     props = Object.assign({}, defaultProps, props);
-    checkPropTypes(props, 'Mapbox');
+    checkPropTypes(props, 'Maplibre');
 
     // Creation only props
-    this.mapboxgl.accessToken = props.mapboxApiAccessToken || defaultProps.mapboxApiAccessToken;
-    this.mapboxgl.baseApiUrl = props.mapboxApiUrl;
+    this.maplibregl.accessToken = props.maplibreApiAccessToken || defaultProps.maplibreApiAccessToken;
+    this.maplibregl.baseApiUrl = props.maplibreApiUrl;
 
     this._create(props);
 
@@ -339,7 +339,7 @@ export default class Mapbox {
     }
 
     newProps = Object.assign({}, this.props, newProps);
-    checkPropTypes(newProps, 'Mapbox');
+    checkPropTypes(newProps, 'Maplibre');
 
     const viewportChanged = this._updateMapViewport(oldProps, newProps);
     const sizeChanged = this._updateMapSize(oldProps, newProps);
@@ -385,7 +385,7 @@ export default class Mapbox {
       newViewState.altitude !== oldViewState.altitude;
 
     if (viewportChanged) {
-      this._map.jumpTo(this._viewStateToMapboxProps(newViewState));
+      this._map.jumpTo(this._viewStateToMaplibreProps(newViewState));
 
       // TODO - jumpTo doesn't handle altitude
       if (newViewState.altitude !== oldViewState.altitude) {
@@ -409,7 +409,7 @@ export default class Mapbox {
     // check mapbox styles
     try {
       const testElement = document.createElement('div');
-      testElement.className = 'mapboxgl-map';
+      testElement.className = 'maplibregl-map';
       testElement.style.display = 'none';
       document.body.appendChild(testElement);
       const isCssLoaded = window.getComputedStyle(testElement).position !== 'static';
@@ -430,7 +430,7 @@ export default class Mapbox {
     }
   }
 
-  _viewStateToMapboxProps(viewState) {
+  _viewStateToMaplibreProps(viewState) {
     return {
       center: [viewState.longitude, viewState.latitude],
       zoom: viewState.zoom,

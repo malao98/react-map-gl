@@ -23,13 +23,13 @@ module.exports = env => {
 
   config.plugins = (config.plugins || []).concat([
     new webpack.DefinePlugin({
-      __MAPBOX_TOKEN__: JSON.stringify(process.env.MapboxAccessToken) // eslint-disable-line
+      __MAPBOX_TOKEN__: JSON.stringify(process.env.MaplibreAccessToken) // eslint-disable-line
     })
   ]);
 
   if (env.mode === 'size') {
     // Only measure self bundle size
-    config.externals = ['mapbox-gl'];
+    config.externals = ['maplibre-gl'];
   }
 
   return config;

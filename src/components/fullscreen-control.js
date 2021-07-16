@@ -22,7 +22,7 @@ import {document} from '../utils/globals';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
 import {useEffect, useState, useMemo} from 'react';
-import mapboxgl from '../utils/mapboxgl';
+import maplibregl from '../utils/maplibregl';
 
 import useMapControl, {mapControlDefaultProps, mapControlPropTypes} from './use-map-control';
 
@@ -48,12 +48,12 @@ function FullscreenControl(props) {
   const {context, containerRef} = useMapControl(props);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showButton, setShowButton] = useState(false);
-  const [mapboxFullscreenControl, createMapboxFullscreenControl] = useState(null);
+  const [maplibreFullscreenControl, createMaplibreFullscreenControl] = useState(null);
 
   useEffect(() => {
-    const control = new mapboxgl.FullscreenControl();
+    const control = new maplibregl.FullscreenControl();
 
-    createMapboxFullscreenControl(control);
+    createMaplibreFullscreenControl(control);
     setShowButton(control._checkFullscreenSupport());
 
     const onFullscreenChange = () => {
@@ -72,9 +72,9 @@ function FullscreenControl(props) {
   }, []);
 
   const onClickFullscreen = () => {
-    if (mapboxFullscreenControl) {
-      mapboxFullscreenControl._container = props.container || context.container;
-      mapboxFullscreenControl._onClickFullscreen();
+    if (maplibreFullscreenControl) {
+      maplibreFullscreenControl._container = props.container || context.container;
+      maplibreFullscreenControl._onClickFullscreen();
     }
   };
 
@@ -89,15 +89,15 @@ function FullscreenControl(props) {
 
   return (
     <div style={style} className={className}>
-      <div className="mapboxgl-ctrl mapboxgl-ctrl-group" ref={containerRef}>
+      <div className="maplibregl-ctrl maplibregl-ctrl-group" ref={containerRef}>
         <button
           key={type}
-          className={`mapboxgl-ctrl-icon mapboxgl-ctrl-${type}`}
+          className={`maplibregl-ctrl-icon maplibregl-ctrl-${type}`}
           type="button"
           title={label}
           onClick={onClickFullscreen}
         >
-          <span className="mapboxgl-ctrl-icon" aria-hidden="true" />
+          <span className="maplibregl-ctrl-icon" aria-hidden="true" />
         </button>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {useEffect, useCallback, useState, useRef, useMemo} from 'react';
 import * as PropTypes from 'prop-types';
-import mapboxgl from '../utils/mapboxgl';
+import maplibregl from '../utils/maplibregl';
 import useMapControl, {mapControlDefaultProps, mapControlPropTypes} from './use-map-control';
 
 const propTypes = Object.assign({}, mapControlPropTypes, {
@@ -18,7 +18,7 @@ const defaultProps = Object.assign({}, mapControlDefaultProps, {
 });
 
 function setupAttributioncontrol(opts, map, container, attributionContainer) {
-  const control = new mapboxgl.AttributionControl(opts);
+  const control = new maplibregl.AttributionControl(opts);
   control._map = map;
   control._container = container;
   control._innerContainer = attributionContainer;
@@ -74,17 +74,17 @@ function AttributionControl(props) {
       <div
         ref={containerRef}
         aria-pressed={showCompact}
-        className={`mapboxgl-ctrl mapboxgl-ctrl-attrib ${compact ? 'mapboxgl-compact' : ''} ${
-          showCompact ? 'mapboxgl-compact-show' : ''
+        className={`maplibregl-ctrl maplibregl-ctrl-attrib ${compact ? 'maplibregl-compact' : ''} ${
+          showCompact ? 'maplibregl-compact-show' : ''
         }`}
       >
         <button
           type="button"
-          className="mapboxgl-ctrl-attrib-button"
+          className="maplibregl-ctrl-attrib-button"
           title={props.toggleLabel}
           onClick={toggleAttribution}
         />
-        <div ref={innerContainerRef} className="mapboxgl-ctrl-attrib-inner" role="list" />
+        <div ref={innerContainerRef} className="maplibregl-ctrl-attrib-inner" role="list" />
       </div>
     </div>
   );

@@ -8,12 +8,12 @@ export type ViewState = {
   altitude?: number
 };
 
-export type MapboxProps = Partial<{
-  mapboxgl: any,
+export type MaplibreProps = Partial<{
+  maplibregl: any,
   container: any,
   gl: any,
-  mapboxApiAccessToken: string,
-  mapboxApiUrl: string,
+  maplibreApiAccessToken: string,
+  maplibreApiUrl: string,
   attributionControl: boolean,
   preserveDrawingBuffer: boolean,
   onLoad: Function,
@@ -36,18 +36,18 @@ export type MapboxProps = Partial<{
   mapOptions: any
 }>;
 
-export default class Mapbox {
+export default class Maplibre {
   static initialized: boolean;
-  static defaultProps: MapboxProps;
+  static defaultProps: MaplibreProps;
   static propTypes: any;
   static savedMap: any;
 
-  props: MapboxProps;
+  props: MaplibreProps;
   width: number;
   height: number;
 
-  constructor(props: MapboxProps);
-  finalize(): Mapbox;
-  setProps(props: MapboxProps): Mapbox;
+  constructor(props: MaplibreProps);
+  finalize(): Maplibre;
+  setProps(props: MaplibreProps): Maplibre;
   getMap(): any;
 }

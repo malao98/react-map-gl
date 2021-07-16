@@ -65,12 +65,12 @@ function renderButton(type, label, callback, children) {
   return (
     <button
       key={type}
-      className={`mapboxgl-ctrl-icon mapboxgl-ctrl-${type}`}
+      className={`maplibregl-ctrl-icon maplibregl-ctrl-${type}`}
       type="button"
       title={label}
       onClick={callback}
     >
-      {children || <span className="mapboxgl-ctrl-icon" aria-hidden="true" />}
+      {children || <span className="maplibregl-ctrl-icon" aria-hidden="true" />}
     </button>
   );
 }
@@ -84,9 +84,9 @@ function renderCompass(context) {
   const style = {transform: `rotate(${-bearing}deg)`};
 
   return uiVersion === VERSION_1_6 ? (
-    <span className="mapboxgl-ctrl-icon" aria-hidden="true" style={style} />
+    <span className="maplibregl-ctrl-icon" aria-hidden="true" style={style} />
   ) : (
-    <span className="mapboxgl-ctrl-compass-arrow" style={style} />
+    <span className="maplibregl-ctrl-compass-arrow" style={style} />
   );
 }
 
@@ -114,7 +114,7 @@ function NavigationControl(props) {
 
   return (
     <div style={style} className={className}>
-      <div className="mapboxgl-ctrl mapboxgl-ctrl-group" ref={containerRef}>
+      <div className="maplibregl-ctrl maplibregl-ctrl-group" ref={containerRef}>
         {showZoom && renderButton('zoom-in', zoomInLabel, onZoomIn)}
         {showZoom && renderButton('zoom-out', zoomOutLabel, onZoomOut)}
         {showCompass && renderButton('compass', compassLabel, onResetNorth, renderCompass(context))}
